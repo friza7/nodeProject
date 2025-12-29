@@ -25,13 +25,24 @@ h1 {
     margin-bottom: 20px;
 }
 
+.caHeader {
+    font-size: 3em;
+    color: var(--primary-color-dark);
+    margin-bottom: 20px;
+}
+
+#createAdminForm {
+    margin-top: 20px;
+}
+
 label {
     display: flex;
     flex-direction: column;
     font-size: 1.5em;
 }
 
-input[type='text'] {
+input[type='text'],
+input[type='email'] {   
     font-size: 0.75em;
     padding: 5px;
     border: solid 3px var(--primary-color-med);
@@ -48,10 +59,12 @@ button {
     width: 100%;
 }
 
-#wrongCredP {
+.errDisplay {
     color: red;
+    height: 10px;
 }
 
 .none {
-    display: none;
+    height: 10px;
+    content: "";
 }

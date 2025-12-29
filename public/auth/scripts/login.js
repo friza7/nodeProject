@@ -14,7 +14,11 @@ form.addEventListener('submit', async (e) => {
     })
 
     if (res.status === 401) {
-        document.getElementById("wrongCredP").classList.toggle('none')
+        const p = document.getElementById("wrongCredP")
+        p.textContent = 'Wrong credentials'
+        setTimeout(() => {
+            p.textContent = ''
+        }, 1500)
     }
 
     if (res.status === 200) {

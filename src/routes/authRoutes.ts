@@ -1,11 +1,14 @@
 import { Router } from "express";
 import path from 'path';
 import jwt from 'jsonwebtoken';
-import pool from '../config/db.ts'
+import pool from '../config/db.ts';
+import bcrypt from "bcryptjs";
+import {checkAdmin} from '../middleware/auth.ts';
 
 const router = Router()
 const __dirname = import.meta.dirname
 
+router.use('/login', checkAdmin)
 
 router.get('/login', (req, res) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -69,6 +72,28 @@ router.post('/login', async (req, res) => {
         console.log(err)
         return res.status(500).json({msg: 'Server side error'})
     }
+})
+
+router.get('/createAdmin', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../public/auth/createAdmin.html'))
+})
+
+router.post('/createAdmin', async (req, res) => {
+    try {
+        const {username, email, password} = req.body
+
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(password, salt)
+
+        await pool.execute('INSERT INTO users (username, email, password, role) VALUES (?,?,?,?)', [username, email, hashedPassword, 'admin'])
+
+        return res.status(200).json({ok: true})
+
+    } catch(err) {
+        console.log(err)
+        return res.status(500).json({ok: false})
+    }
+    
 })
 
 router.get('/logout', (req, res) => {

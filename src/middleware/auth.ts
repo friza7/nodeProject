@@ -1,6 +1,9 @@
 import path from 'path';
 import jwt from 'jsonwebtoken';
+import pool from '../config/db.ts';
 import 'dotenv/config';
+
+const __dirname = import.meta.dirname
 
 export const auth = (role : string) => {
     return (req : any, res : any, next : any) => {
@@ -29,4 +32,19 @@ export const auth = (role : string) => {
         }
         next()
     }
+}
+
+export const checkAdmin = async (req: any, res : any, next : any) => {
+    try {
+        const [rows] : any = await pool.execute('SELECT * FROM users WHERE role = "admin"');
+
+        if (rows.length < 1) {
+            return res.redirect('/auth/createAdmin')
+
+        }
+    } catch (err) {
+        console.log(err)
+        res.status(500).send("error")
+    }
+    
 }
