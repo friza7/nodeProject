@@ -1,6 +1,7 @@
 import path from 'path';
 import jwt from 'jsonwebtoken';
 import pool from '../config/db.ts';
+import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 
 const __dirname = import.meta.dirname
@@ -40,8 +41,14 @@ export const checkAdmin = async (req: any, res : any, next : any) => {
 
         if (rows.length < 1) {
             return res.redirect('/auth/createAdmin')
-
         }
+
+        res.cookie('adminExists', true, {
+            httpOnly: true,
+            maxAge: 7200000
+        })
+
+        next()
     } catch (err) {
         console.log(err)
         res.status(500).send("error")

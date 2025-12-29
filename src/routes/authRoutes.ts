@@ -40,42 +40,52 @@ router.post('/login', async (req, res) => {
     try {
         const {username, password} = req.body
 
-        let [rows] : any= await pool.execute('SELECT * from users WHERE username = ? AND password = ?', [username, password])
+        const [result] : any = await pool.execute('SELECT * FROM users WHERE username = ?', [username])
+        const rows = result[0]
+        let match = false
 
-        if (rows.length === 0) {
+        if (result.length > 0) {
+            const hashedPassword : string = rows.password
+            match = await bcrypt.compare(password, hashedPassword)
+
+            if (match) {
+
+                const payload = {
+                    id: rows.user_id,
+                    username: username,
+                    role: rows.role
+                }
+
+                const token = jwt.sign(
+                    payload,
+                    process.env.JWT_SECRET as string,
+                    {expiresIn: '2h'}
+
+                )
+
+                res.cookie('token', token, {
+                    httpOnly: true,
+                    maxAge: 7200000
+                })
+
+                return res.status(200).json({role: rows.role})
+            }
+        } else {
             return res.status(401).json({msg: 'wrong credentials'})
-        } 
-
-           rows = rows[0]
-
-        const payload = {
-            id: rows.id,
-            username: username,
-            role: rows.role
         }
 
-        const token = jwt.sign(
-            payload,
-            process.env.JWT_SECRET as string,
-            {expiresIn: '2h'}
-
-        )
-
-        res.cookie('token', token, {
-            httpOnly: true,
-            maxAge: 7200000
-        })
-
-        return res.status(200).json({role: rows.role})
-
+        
     } catch (err) {
         console.log(err)
         return res.status(500).json({msg: 'Server side error'})
     }
 })
 
-router.get('/createAdmin', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public/auth/createAdmin.html'))
+router.get('/createAdmin', async (req, res) => {
+    if (req.cookies.adminExists) {
+        return res.redirect('/auth/login')
+    }
+    return res.sendFile(path.join(__dirname, '../../public/auth/createAdmin.html'))
 })
 
 router.post('/createAdmin', async (req, res) => {
