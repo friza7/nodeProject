@@ -1,7 +1,5 @@
-import path from 'path';
 import jwt from 'jsonwebtoken';
 import pool from '../config/db.ts';
-import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 
 const __dirname = import.meta.dirname
@@ -36,17 +34,15 @@ export const auth = (role : string) => {
 }
 
 export const checkAdmin = async (req: any, res : any, next : any) => {
+    if (req.path === '/auth/createAdmin') {
+        return next();
+    }
     try {
         const [rows] : any = await pool.execute('SELECT * FROM users WHERE role = "admin"');
 
         if (rows.length < 1) {
             return res.redirect('/auth/createAdmin')
         }
-
-        res.cookie('adminExists', true, {
-            httpOnly: true,
-            maxAge: 7200000
-        })
 
         next()
     } catch (err) {

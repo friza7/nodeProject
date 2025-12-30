@@ -4,7 +4,7 @@ import 'dotenv/config';
 // import pool from './config/db.ts';
 // import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
-import {auth} from './middleware/auth.ts';
+import {auth, checkAdmin} from './middleware/auth.ts';
 import adminRoutes from './routes/adminRoutes.ts';
 import authRoutes from './routes/authRoutes.ts';
 
@@ -20,7 +20,9 @@ app.get('/', (req, res) => {
     res.redirect('/auth/login')
 })
 
-app.use('/auth', authRoutes)    
+app.use('/auth', authRoutes)  
+
+app.use(checkAdmin)//TODO: PONER QUE ESTO SE EJCUTE SIENPRE
 
 app.use('/admin', auth('admin'), adminRoutes)
 
