@@ -54,7 +54,6 @@ export const loginPost = async (req : any, res : any) => {
                     payload,
                     process.env.JWT_SECRET as string,
                     {expiresIn: '2h'}
-
                 )
 
                 res.cookie('token', token, {

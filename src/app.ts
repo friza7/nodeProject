@@ -16,13 +16,13 @@ app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(cookieParser())
 
+app.use(checkAdmin)
+
 app.get('/', (req, res) => {
     res.redirect('/auth/login')
 })
 
 app.use('/auth', authRoutes)  
-
-app.use(checkAdmin)//TODO: PONER QUE ESTO SE EJCUTE SIENPRE
 
 app.use('/admin', auth('admin'), adminRoutes)
 
